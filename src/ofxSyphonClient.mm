@@ -19,17 +19,17 @@ mClient(nil), latestImage(nil), width(0), height(0), bSetup(false)
 
 ofxSyphonClient::~ofxSyphonClient()
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-    [(SyphonNameboundClient*)mClient release];
-    mClient = nil;
-    
-    [pool drain];
+	//    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+//		[(SyphonNameboundClient*)mClient release];
+		mClient = nil;
+	}
+//    [pool drain];
 }
 
 ofxSyphonClient::ofxSyphonClient(ofxSyphonClient const& s) :
-mClient([(SyphonNameboundClient*)s.mClient retain]),
-latestImage([(SyphonOpenGLImage*)s.latestImage retain]),
+mClient(s.mClient),
+latestImage(s.latestImage),
 mTex(s.mTex),
 width(s.width),
 height(s.height),
@@ -46,33 +46,34 @@ ofxSyphonClient & ofxSyphonClient::operator= (ofxSyphonClient const& s)
     {
         return *this;
     }
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+//    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 
-    [(SyphonNameboundClient*)mClient release];
-    mClient = [(SyphonNameboundClient*)s.mClient retain];
-    [(SyphonOpenGLImage*)latestImage release];
-    latestImage = [(SyphonOpenGLImage*)s.latestImage retain];
-    mTex = s.mTex;
-    width = s.width;
-    height = s.height;
-    bSetup = s.bSetup;
-    appName = s.appName;
-    serverName = s.serverName;
-
-    [pool drain];
+//		[(SyphonNameboundClient*)mClient release];
+		mClient = s.mClient;
+//		[(SyphonOpenGLImage*)latestImage release];
+		latestImage = s.latestImage;
+		mTex = s.mTex;
+		width = s.width;
+		height = s.height;
+		bSetup = s.bSetup;
+		appName = s.appName;
+		serverName = s.serverName;
+	}
+//    [pool drain];
 	return *this;
 }
 
 void ofxSyphonClient::setup()
 {
     // Need pool
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        
-	mClient = [[SyphonNameboundClient alloc] initWithContext:CGLGetCurrentContext()];
+//    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+		mClient = (__bridge void *)[[SyphonNameboundClient alloc] initWithContext:CGLGetCurrentContext()];
                
-	bSetup = true;
-    
-    [pool drain];
+		bSetup = true;
+	}
+//    [pool drain];
 }
 
 bool ofxSyphonClient::isSetup(){
@@ -86,18 +87,19 @@ void ofxSyphonClient::set(ofxSyphonServerDescription _server){
 void ofxSyphonClient::set(const std::string &_serverName, const std::string &_appName){
     if(bSetup)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        
-        NSString *nsAppName = [NSString stringWithCString:_appName.c_str() encoding:[NSString defaultCStringEncoding]];
-        NSString *nsServerName = [NSString stringWithCString:_serverName.c_str() encoding:[NSString defaultCStringEncoding]];
-        
-        [(SyphonNameboundClient*)mClient setAppName:nsAppName];
-        [(SyphonNameboundClient*)mClient setName:nsServerName];
-        
-        appName = _appName;
-        serverName = _serverName;
-        
-        [pool drain];
+//        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
+			NSString *nsAppName = [NSString stringWithCString:_appName.c_str() encoding:[NSString defaultCStringEncoding]];
+			NSString *nsServerName = [NSString stringWithCString:_serverName.c_str() encoding:[NSString defaultCStringEncoding]];
+			
+			[(__bridge SyphonNameboundClient*)mClient setAppName:nsAppName];
+			[(__bridge SyphonNameboundClient*)mClient setName:nsServerName];
+			
+			appName = _appName;
+			serverName = _serverName;
+			
+		}
+//        [pool drain];
     }
 }
 
@@ -105,15 +107,17 @@ void ofxSyphonClient::setApplicationName(const std::string &_appName)
 {
     if(bSetup)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        
-        NSString *name = [NSString stringWithCString:_appName.c_str() encoding:[NSString defaultCStringEncoding]];
-        
-        [(SyphonNameboundClient*)mClient setAppName:name];
-        
-        appName = _appName;
+//        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
 
-        [pool drain];
+        
+			NSString *name = [NSString stringWithCString:_appName.c_str() encoding:[NSString defaultCStringEncoding]];
+			
+			[(__bridge SyphonNameboundClient*)mClient setAppName:name];
+			
+			appName = _appName;
+		}
+//        [pool drain];
     }
     
 }
@@ -121,18 +125,19 @@ void ofxSyphonClient::setServerName(const std::string &_serverName)
 {
     if(bSetup)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        
-        NSString *name = [NSString stringWithCString:_serverName.c_str() encoding:[NSString defaultCStringEncoding]];
+//        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
+			NSString *name = [NSString stringWithCString:_serverName.c_str() encoding:[NSString defaultCStringEncoding]];
 
-        if([name length] == 0)
-            name = nil;
-        
-        [(SyphonNameboundClient*)mClient setName:name];
-        
-        serverName = _serverName;
+			if([name length] == 0)
+				name = nil;
+			
+			[(__bridge SyphonNameboundClient*)mClient setName:name];
+			
+			serverName = _serverName;
+		}
     
-        [pool drain];
+//        [pool drain];
     }    
 }
 
@@ -146,57 +151,60 @@ const std::string& ofxSyphonClient::getServerName(){
 
 void ofxSyphonClient::bind()
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    
-    if(bSetup)
-    {
-     	[(SyphonNameboundClient*)mClient lockClient];
-        SyphonOpenGLClient *client = [(SyphonNameboundClient*)mClient client];
-        
-        latestImage = [client newFrameImage];
-		NSSize texSize = [(SyphonOpenGLImage*)latestImage textureSize];
-        
-        // we now have to manually make our ofTexture's ofTextureData a proxy to our SyphonOpenGLImage
-        mTex.setUseExternalTextureID([(SyphonOpenGLImage*)latestImage textureName]);
-        mTex.texData.textureTarget = GL_TEXTURE_RECTANGLE_ARB;  // Syphon always outputs rect textures.
-        mTex.texData.width = texSize.width;
-        mTex.texData.height = texSize.height;
-        mTex.texData.tex_w = texSize.width;
-        mTex.texData.tex_h = texSize.height;
-        mTex.texData.tex_t = texSize.width;
-        mTex.texData.tex_u = texSize.height;
-        mTex.texData.glInternalFormat = GL_RGBA;
-#if (OF_VERSION_MAJOR == 0) && (OF_VERSION_MINOR < 8)
-        mTex.texData.glType = GL_RGBA;
-        mTex.texData.pixelType = GL_UNSIGNED_BYTE;
-#endif
-        mTex.texData.bFlipTexture = YES;
-        mTex.texData.bAllocated = YES;
-        
-        mTex.bind();
-    }
-    else
-		cout<<"ofxSyphonClient is not setup, or is not properly connected to server.  Cannot bind.\n";
-    
-    [pool drain];
+//	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+		
+		if(bSetup)
+		{
+			[(__bridge SyphonNameboundClient*)mClient lockClient];
+			SyphonOpenGLClient *client = [(__bridge SyphonNameboundClient*)mClient client];
+			
+			latestImage = (__bridge void *)[client newFrameImage];
+			NSSize texSize = [(__bridge SyphonOpenGLImage*)latestImage textureSize];
+			
+			// we now have to manually make our ofTexture's ofTextureData a proxy to our SyphonOpenGLImage
+			mTex.setUseExternalTextureID([(__bridge SyphonOpenGLImage*)latestImage textureName]);
+			mTex.texData.textureTarget = GL_TEXTURE_RECTANGLE_ARB;  // Syphon always outputs rect textures.
+			mTex.texData.width = texSize.width;
+			mTex.texData.height = texSize.height;
+			mTex.texData.tex_w = texSize.width;
+			mTex.texData.tex_h = texSize.height;
+			mTex.texData.tex_t = texSize.width;
+			mTex.texData.tex_u = texSize.height;
+			mTex.texData.glInternalFormat = GL_RGBA;
+	#if (OF_VERSION_MAJOR == 0) && (OF_VERSION_MINOR < 8)
+			mTex.texData.glType = GL_RGBA;
+			mTex.texData.pixelType = GL_UNSIGNED_BYTE;
+	#endif
+			mTex.texData.bFlipTexture = YES;
+			mTex.texData.bAllocated = YES;
+			
+			mTex.bind();
+		}
+		else
+			cout<<"ofxSyphonClient is not setup, or is not properly connected to server.  Cannot bind.\n";
+	}
+//    [pool drain];
 }
 
 void ofxSyphonClient::unbind()
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+//    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
-    if(bSetup)
-    {
-        mTex.unbind();
+		if(bSetup)
+		{
+			mTex.unbind();
 
-        [(SyphonNameboundClient*)mClient unlockClient];
-        [(SyphonOpenGLImage*)latestImage release];
-        latestImage = nil;
-    }
-    else
-		cout<<"ofxSyphonClient is not setup, or is not properly connected to server.  Cannot unbind.\n";
+			[(__bridge SyphonNameboundClient*)mClient unlockClient];
+	//        [(SyphonOpenGLImage*)latestImage release];
+			latestImage = nil;
+		}
+		else
+			cout<<"ofxSyphonClient is not setup, or is not properly connected to server.  Cannot unbind.\n";
 
-        [pool drain];
+	}
+//        [pool drain];
 }
 
 void ofxSyphonClient::draw(float x, float y, float w, float h)

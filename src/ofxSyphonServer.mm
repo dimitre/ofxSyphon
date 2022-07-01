@@ -17,32 +17,33 @@ ofxSyphonServer::ofxSyphonServer()
 
 ofxSyphonServer::~ofxSyphonServer()
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    
-    [(SyphonOpenGLServer *)mSyphon stop];
-    [(SyphonOpenGLServer *)mSyphon release];
-    
-    [pool drain];
+//    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+		[(__bridge SyphonOpenGLServer *)mSyphon stop];
+//		[mSyphon stop];
+//		[(SyphonOpenGLServer *)mSyphon release];
+	}
+//    [pool drain];
 }
 
 
 void ofxSyphonServer::setName(const std::string &n)
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    
-	NSString *title = [NSString stringWithCString:n.c_str()
+//    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+		NSString *title = [NSString stringWithCString:n.c_str()
 										 encoding:[NSString defaultCStringEncoding]];
 	
-	if (!mSyphon)
-	{
-		mSyphon = [[SyphonOpenGLServer alloc] initWithName:title context:CGLGetCurrentContext() options:nil];
+		if (!mSyphon)
+		{
+			mSyphon = (__bridge void*)[[SyphonOpenGLServer alloc] initWithName:title context:CGLGetCurrentContext() options:nil];
+		}
+		else
+		{
+			[(__bridge SyphonOpenGLServer *)mSyphon setName:title];
+		}
 	}
-	else
-	{
-		[(SyphonOpenGLServer *)mSyphon setName:title];
-	}
-    
-    [pool drain];
+//    [pool drain];
 }
 
 std::string ofxSyphonServer::getName()
@@ -50,11 +51,13 @@ std::string ofxSyphonServer::getName()
 	std::string name;
 	if (mSyphon)
 	{
-		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        
-		name = [[(SyphonOpenGLServer *)mSyphon name] cStringUsingEncoding:[NSString defaultCStringEncoding]];
 		
-		[pool drain];
+		@autoreleasepool {
+			//		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        
+			name = [[(__bridge SyphonOpenGLServer *)mSyphon name] cStringUsingEncoding:[NSString defaultCStringEncoding]];
+		}
+//		[pool drain];
 	}
 	else
 	{
@@ -82,19 +85,22 @@ void ofxSyphonServer::publishScreen()
 void ofxSyphonServer::publishTexture(ofTexture* inputTexture)
 {
     // If we are setup, and our input texture
+	NSLog (@"before isallocated");
 	if(inputTexture->isAllocated())
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        
-		ofTextureData texData = inputTexture->getTextureData();
-        
-		if (!mSyphon)
-		{
-			mSyphon = [[SyphonOpenGLServer alloc] initWithName:@"Untitled" context:CGLGetCurrentContext() options:nil];
+//        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+		NSLog (@"isallocated");
+		@autoreleasepool {
+			ofTextureData texData = inputTexture->getTextureData();
+			
+			if (!mSyphon)
+			{
+				mSyphon = (__bridge void*)[[SyphonOpenGLServer alloc] initWithName:@"Untitled" context:CGLGetCurrentContext() options:nil];
+			}
+			
+			[(__bridge SyphonOpenGLServer *)mSyphon publishFrameTexture:texData.textureID textureTarget:texData.textureTarget imageRegion:NSMakeRect(0, 0, texData.width, texData.height) textureDimensions:NSMakeSize(texData.width, texData.height) flipped:!texData.bFlipTexture];
 		}
-		
-		[(SyphonOpenGLServer *)mSyphon publishFrameTexture:texData.textureID textureTarget:texData.textureTarget imageRegion:NSMakeRect(0, 0, texData.width, texData.height) textureDimensions:NSMakeSize(texData.width, texData.height) flipped:!texData.bFlipTexture];
-        [pool drain];
+//        [pool drain];
     }
     else
     {
@@ -104,14 +110,17 @@ void ofxSyphonServer::publishTexture(ofTexture* inputTexture)
 
 void ofxSyphonServer::publishTexture(GLuint id, GLenum target, GLsizei width, GLsizei height, bool isFlipped)
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	
+	//    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
     
-    if (!mSyphon)
-    {
-        mSyphon = [[SyphonOpenGLServer alloc] initWithName:@"Untitled" context:CGLGetCurrentContext() options:nil];
-    }
-    
-    [(SyphonOpenGLServer *)mSyphon publishFrameTexture:id textureTarget:target imageRegion:NSMakeRect(0, 0, width, height) textureDimensions:NSMakeSize(width, height) flipped:!isFlipped];
-    [pool drain];
+		if (!mSyphon)
+		{
+			mSyphon = (__bridge void *)[[SyphonOpenGLServer alloc] initWithName:@"Untitled" context:CGLGetCurrentContext() options:nil];
+		}
+		
+		[(__bridge SyphonOpenGLServer *)mSyphon publishFrameTexture:id textureTarget:target imageRegion:NSMakeRect(0, 0, width, height) textureDimensions:NSMakeSize(width, height) flipped:!isFlipped];
+	}
+//    [pool drain];
     
 }

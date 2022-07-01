@@ -126,11 +126,11 @@ int ofxSyphonServerDirectory::size(){
 void ofxSyphonServerDirectory::handleNotification(CFStringRef name, CFDictionaryRef userInfo){
     NSString *serverName, *appName;
 
-    if((NSString*)name == SyphonServerAnnounceNotification){
+	if((__bridge NSString*)name == SyphonServerAnnounceNotification){
         serverAnnounced();
-    } else if((NSString*)name == SyphonServerUpdateNotification){
+	} else if((__bridge NSString*)name == SyphonServerUpdateNotification){
         serverUpdated();
-    } else if((NSString*)name == SyphonServerRetireNotification){
+	} else if((__bridge NSString*)name == SyphonServerRetireNotification){
         serverRetired();
     }
 }
