@@ -118,12 +118,12 @@
 
 - (void)unlockClient
 {
-	SyphonOpenGLClient *doneWith;
+	//SyphonOpenGLClient *doneWith;
 	os_unfair_lock_lock(&_lock);
-	doneWith = _lockedClient;
+	//doneWith = _lockedClient;
 	_lockedClient = nil;
 	os_unfair_lock_unlock(&_lock);
-	[doneWith release]; // release outside the lock as it may take time
+	//[doneWith release]; // release outside the lock as it may take time
 }
 
 - (SyphonOpenGLClient *)client
