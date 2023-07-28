@@ -58,10 +58,9 @@ void ofxSyphonServerDirectory::refresh(bool isAnnounce){
     {
         NSString* name = [serverDescription objectForKey:SyphonServerDescriptionNameKey];
         NSString* appName = [serverDescription objectForKey:SyphonServerDescriptionAppNameKey];
-        NSString *uuid = [serverDescription objectForKey:SyphonServerDescriptionUUIDKey];
-        NSImage* appImage = [serverDescription objectForKey:SyphonServerDescriptionIconKey];
-        
-        NSString *title = [NSString stringWithString:appName];
+        //NSString *uuid = [serverDescription objectForKey:SyphonServerDescriptionUUIDKey];
+        //NSImage* appImage = [serverDescription objectForKey:SyphonServerDescriptionIconKey];
+        //NSString *title = [NSString stringWithString:appName];
         
         if(isAnnounce){
             bool exists = serverExists([name UTF8String], [appName UTF8String]);
